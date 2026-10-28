@@ -4,7 +4,7 @@ title: '#4471 is three problems, not one'
 owner: Mikolaj Banaszek
 status: proposed
 reviewed: 2026-10-28
-signature: Mikolaj Banaszek
+signature: v1.eyJzdWIiOiIzODAiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzE5NTI4MiwiZXhwIjoxNzkzMjgxNjgyfQ.7QXfoonHCTdIpAfaKW3PLxESPZLby3xedzesY5QqzEY
 ---
 
 <script>
