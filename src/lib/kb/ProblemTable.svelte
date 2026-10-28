@@ -1,6 +1,8 @@
 <script lang="ts">
   // One row per problem inside a merged ticket, each linked to its own ticket.
-  // Same data and rules as CauseTable, plus the desk's own one-day-move notes as a cause of their own.
+  // Counts follow the desk's view (causes.ts, as exported): every report sits under its cause.
+  // The desk's one-day-move notes get a row of their own too; those reports also stay counted
+  // where the desk files them, so the rows can add up to more than the merged total.
   import reports from '#lib/data/reports-4471.json';
   import notes from '#lib/data/desk-notes.json';
   import { causeOf, uniqueById, type Report } from '#lib/kb/causes';
@@ -20,14 +22,16 @@
     unplaced: 'No tenant on file, cause unknown',
   };
 
-  const problemOf = (r: Report): Problem =>
-    notes.oneDayMove.includes(r.id) ? 'shift' : (causeOf(r, tenantOf(r)) ?? 'unplaced');
+  const problemsOf = (r: Report): Problem[] => [
+    causeOf(r, tenantOf(r)) ?? 'unplaced',
+    ...(notes.oneDayMove.includes(r.id) ? (['shift'] as const) : []),
+  ];
 
   const rows = $derived.by(() => {
     const unique = uniqueById(reports as Report[]);
     const merged = unique.filter((r) => r.mergedInto === ticket);
     const by = new Map<Problem, Report[]>();
-    for (const r of merged) by.set(problemOf(r), [...(by.get(problemOf(r)) ?? []), r]);
+    for (const r of merged) for (const p of problemsOf(r)) by.set(p, [...(by.get(p) ?? []), r]);
     const list = [...by.entries()]
       .map(([problem, rs]) => {
         const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();
@@ -42,7 +46,8 @@
         };
       })
       .sort((a, b) => b.count - a.count);
-    return { rows: list, merged: merged.length, exported: (reports as Report[]).length };
+    const shiftUnder = list.find((x) => x.problem === 'shift')?.count ?? 0;
+    return { rows: list, merged: merged.length, exported: (reports as Report[]).length, shiftUnder };
   });
 </script>
 
@@ -74,7 +79,12 @@
   </tbody>
 </table>
 
+{#if rows.shiftUnder}
+  <p class="note">The {rows.shiftUnder} one-day moves are also counted under <code>parser</code>, where the desk files them by tenant.</p>
+{/if}
+
 <style>
   .sum { font-size: 1.1rem; }
   td:first-child code { margin-right: 0.35rem; }
+  .note { color: var(--muted); font-size: 0.85em; }
 </style>
