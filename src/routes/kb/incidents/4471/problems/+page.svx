@@ -13,16 +13,23 @@ signature: v1.eyJzdWIiOiIzODAiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdC
   import RenderStamp from '#lib/kb/RenderStamp.svelte';
 </script>
 
-[#4471](/kb/incidents/4471) is marked known, with one fix queued for the parser. Read report by
-report, the merged queue holds three problems with three different fixes. The fix for the parser
-closes only the first one.
+[#4471](/kb/incidents/4471) was merged as one issue with one fix queued for the parser. Read report
+by report, the merged queue holds three problems with three different outcomes. Engineering closed
+#4471 on 5 October: the parser is fixed and the booking-v3 form is retired. The one-day shift is
+still open.
 
 <ProblemTable ticket={4471} repo="xaero6/mega-what-it-shows" issues={{ parser: 1, hint: 2, shift: 3 }} />
 
 <Callout kind="warn">
-Keep #4471 open for the parser only. The booking-v3 hint and the one-day shift each have a ticket
-of their own, and neither closes when the parser fix ships.
+#4471 is closed, but the one-day shift is not fixed. Its ticket stays open: neither the parser fix
+nor retiring booking-v3 touches it.
 </Callout>
+
+| problem | outcome (engineering update, 5 Oct) |
+| --- | --- |
+| `parser` | fixed: `fix(dates): parse dd/mm for eu locales` |
+| `hint` | won't fix: booking-v3 form retired |
+| `shift` | open, no fix yet |
 
 ## The three problems
 
@@ -51,6 +58,7 @@ swap. It points to a time-zone conversion. The desk already read these as one-da
 ## What the desk can do next
 
 - Before merging into a known ticket, check the cause with [triage](/kb/triage/dedupe), not only the subject.
-- When the parser fix ships, re-run this page: reports that keep arriving belong to the other two tickets.
+- The parser fix has shipped and booking-v3 is gone, so a new report of a wrong date is most likely
+  the one-day shift. File it on the shift ticket, not on #4471.
 
 <RenderStamp {signature} />
