@@ -1,0 +1,56 @@
+---
+layout: runbook
+title: '#4471 is three problems, not one'
+owner: Mikolaj Banaszek
+status: proposed
+reviewed: 2026-10-28
+signature: Mikolaj Banaszek
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) is marked known, with one fix queued for the parser. Read report by
+report, the merged queue holds three problems with three different fixes. The fix for the parser
+closes only the first one.
+
+<ProblemTable ticket={4471} repo="xaero6/mega-what-it-shows" issues={{ parser: 1, hint: 2, shift: 3 }} />
+
+<Callout kind="warn">
+Keep #4471 open for the parser only. The booking-v3 hint and the one-day shift each have a ticket
+of their own, and neither closes when the parser fix ships.
+</Callout>
+
+## The three problems
+
+**Parser.** The shared parser reads every date month first. Our tenants all write the day first,
+so day and month swap whenever both are 12 or less: a reminder for 7 April goes out on 4 July.
+These reports come through the app, by email, and through the booking-v2 form.
+
+**booking-v3 hint.** The booking-v3 form prints `MM/DD/YYYY` under its date field. People follow
+the hint and type the month first, and the form then reads the date day first. The symptom is the
+same swap, so subject-line merging put these reports with the parser ones. The fix is in the form,
+not in the parser.
+
+**One-day shift.** A handful of reports describe a date that moved by exactly one day: Tuesday
+showed as Monday, one meeting landed on Tuesday in Lisbon and Monday in Toronto. That is not a
+swap. It points to a time-zone conversion. The desk already read these as one-day moves
+(`desk-notes.json`), but the cause table on #4471 still counts them under the parser.
+
+## Why one ticket hid three
+
+- Merging went by subject line ([decision 0001](/kb/decisions/0001-dedupe-by-subject)). Different
+  causes share the same subjects, so they landed in one ticket.
+- Intake tags come from the reporter's browser. The column "intake tag matches" above shows how
+  often the tag agrees with the cause: often for the parser, rarely for the hint.
+- The export pages overlap, so some reports appear twice. Counts here are by unique report id.
+
+## What the desk can do next
+
+- Before merging into a known ticket, check the cause with [triage](/kb/triage/dedupe), not only the subject.
+- When the parser fix ships, re-run this page: reports that keep arriving belong to the other two tickets.
+
+<RenderStamp {signature} />
